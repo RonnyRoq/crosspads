@@ -1,4 +1,4 @@
-define(function(require){
+define(function(){
   /****
   Chrome :
     Axes :
@@ -46,9 +46,10 @@ define(function(require){
       9 : RP
 
   ****/
+  'use strict';
   var Crosspads = function()
   {
-    var usingChromeStyle = !!navigator.webkitGetGamepads;
+    var usingChromeStyle = !!navigator.getGamepads;
     console.log("can use chrome gamepads ? " + usingChromeStyle);
     //There was an array called webkitGamepads[] before august 2012
 
@@ -57,27 +58,55 @@ define(function(require){
     {
       if(usingChromeStyle)
       {
-        this.pads = navigator.webkitGetGamepads();
+        this.pads = navigator.getGamepads();
       }
-    }
+    };
     this.isPadConnected = function(index)
     {
       return !!this.pads[index];
-    }
+    };
     this.hasAnyPadConnected = function()
     {
       return (this.pads[0] || this.pads[1] || this.pads[2] || this.pads[3]);
-    }
+    };
     this.getChromePad = function(index)
     {
       if(usingChromeStyle)
       {
-        return this.pads[index];
+        var chromePad = this.pads[index];
+        var result ={
+          index : chromePad.index,
+          axes : [
+            chromePad.axes[0],
+            chromePad.axes[1],
+            chromePad.axes[2],
+            chromePad.axes[3]
+          ],
+          buttons : [
+            chromePad.buttons[0].value,
+            chromePad.buttons[1].value,
+            chromePad.buttons[2].value,
+            chromePad.buttons[3].value,
+            chromePad.buttons[4].value,
+            chromePad.buttons[5].value,
+            chromePad.buttons[6].value,
+            chromePad.buttons[7].value,
+            chromePad.buttons[8].value,
+            chromePad.buttons[9].value,
+            chromePad.buttons[10].value,
+            chromePad.buttons[11].value,
+            chromePad.buttons[12].value,
+            chromePad.buttons[13].value,
+            chromePad.buttons[14].value,
+            chromePad.buttons[15].value
+          ]
+        }
+        return result;
       }
       else
       {
         var mozPad = this.pads[index];
-        var chromePad = undefined;
+        var chromePad;
         if(mozPad)
         {
           chromePad = {
@@ -106,11 +135,11 @@ define(function(require){
               Math.abs(Math.min(mozPad.axes[5] , 0)),
               Math.max(mozPad.axes[5], 0)
             ]
-          }
+          };
         }
         return chromePad;
       }
-    }
+    };
     this.getMozPad = function(index)
     {
       if(!usingChromeStyle)
@@ -119,7 +148,7 @@ define(function(require){
       }
       else
       {
-        var mozPad = undefined;
+        var mozPad;
         var chromePad = this.pads[index];
         if(chromePad)
         {
@@ -147,14 +176,14 @@ define(function(require){
               { value : chromePad.buttons[10], pressed : chromePad.buttons[10] > 0.2},
               { value : chromePad.buttons[11], pressed : chromePad.buttons[11] > 0.2}
             ]
-          }
+          };
         }
         return mozPad;
       }
-    }
+    };
     this.getXBoxPad = function(index)
     {
-      var xBoxPad = undefined;
+      var xBoxPad;
       if(usingChromeStyle)
       {
         var chromePad = this.pads[index];
@@ -232,17 +261,17 @@ define(function(require){
         }
       }
       return xBoxPad;
-    }
-  }
-  window.gamepads = new Crosspads();
+    };
+  };
+  var crosspads = new Crosspads();
   var gamepadConnected = function(e)
   {
-    window.gamepads.pads[e.gamepad.index] = e.gamepad;
-  }
+    crosspads.pads[e.gamepad.index] = e.gamepad;
+  };
   var gamepadDisconnected = function(e) {
-    window.gamepads.pads[e.gamepad.index] = undefined;
-  }
+    crosspads.pads[e.gamepad.index] = undefined;
+  };
   window.addEventListener("gamepadconnected", gamepadConnected);
   window.addEventListener("gamepaddisconnected", gamepadDisconnected);
-  return window.gamepads;
+  return crosspads;
 });
